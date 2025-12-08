@@ -1,35 +1,28 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
-
-    stage('Install') {
-      steps {
-        sh 'npm ci'
-      }
-    }
-
-    stage('Run Tests') {
-      steps {
-        sh 'npm test'
-      }
-      post {
-        always {
-          junit 'test-results/*.xml' // will be added after Module 4
-          archiveArtifacts artifacts: 'test-results/*.xml', allowEmptyArchive: true
+    stages {
+        stage('Install') {
+            steps {
+                echo 'Installing dependencies...'
+                bat 'npm install'
+            }
         }
-      }
-    }
-  }
 
-  post {
-    always {
-      echo "Build finished: ${currentBuild.currentResult}"
+        stage('Run Tests') {
+            steps {
+                echo 'Running Selenium tests...'
+                bat 'npm test'
+            }
+        }
     }
-  }
+
+    post {
+        success {
+            echo 'Tests passed ✅'
+        }
+        failure {
+            echo 'Tests failed ❌'
+        }
+    }
 }
