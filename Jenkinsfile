@@ -4,7 +4,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo "Running Selenium JS tests"
-                sh 'npm test'  // your Selenium test command
+                bat 'npm install'
+                bat 'npm test'
             }
         }
         stage('Slack Notification') {
@@ -12,7 +13,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN2', variable: 'SLACK_TOKEN')]) {
                     slackSend(
                         token: "${SLACK_TOKEN}",
-                        channel: "#all-test-automation",   // replace with your Slack channel
+                        channel: "#all-test-automation",
                         color: "good",
                         message: "✅ Jenkins build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                     )
@@ -25,7 +26,7 @@ pipeline {
             withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN2', variable: 'SLACK_TOKEN')]) {
                 slackSend(
                     token: "${SLACK_TOKEN}",
-                    channel: "#all-test-automation",   // replace with your Slack channel
+                    channel: "#all-test-automation",
                     color: "danger",
                     message: "❌ Jenkins build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                 )
