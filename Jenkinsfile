@@ -1,28 +1,35 @@
 pipeline {
     agent any
-
     stages {
-        stage('Install') {
-            steps {
-                echo 'Installing dependencies...'
-                bat 'npm install'
-            }
-        }
-
         stage('Run Tests') {
             steps {
-                echo 'Running Selenium tests...'
-                bat 'npm test'
+                echo "Running Selenium JS tests"
+                sh 'npm test'  // your Selenium test command
+            }
+        }
+        stage('Slack Notification') {
+            steps {
+                withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN2', variable: 'SLACK_TOKEN')]) {
+                    slackSend(
+                        token: "${SLACK_TOKEN}",
+                        channel: "#all-test-automation",   // replace with your Slack channel
+                        color: "good",
+                        message: "✅ Jenkins build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                    )
+                }
             }
         }
     }
-
     post {
-        success {
-            echo 'Tests passed Yahoooo 12/10/2025'
-        }
         failure {
-            echo 'Tests failed ❌'
+            withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN2', variable: 'SLACK_TOKEN')]) {
+                slackSend(
+                    token: "${SLACK_TOKEN}",
+                    channel: "#all-test-automation",   // replace with your Slack channel
+                    color: "danger",
+                    message: "❌ Jenkins build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+                )
+            }
         }
     }
 }
