@@ -1,14 +1,23 @@
 pipeline {
     agent any
+
     stages {
-        stage('Slack Test') {
+        stage('Build') {
             steps {
-                slackSend(
-                    channel: '#all-test-automation',
-                    color: 'good',
-                    message: "✅ Test message from Jenkins Pipeline",
-                    tokenCredentialId: 'SLACK_BOT_TOKEN2'
-                )
+                echo 'Running tests...'
+            }
+        }
+
+        stage('Slack Notification') {
+            steps {
+                withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN', variable: 'SLACK_TOKEN')]) {
+                    bat """
+                    curl -X POST https://slack.com/api/chat.postMessage ^
+                    -H "Authorization: Bearer %SLACK_TOKEN%" ^
+                    -H "Content-type: application/json" ^
+                    --data "{ \\"channel\\": \\"#all-test-automation\\", \\"text\\": \\"✅ Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\" }"
+                    """
+                }
             }
         }
     }
