@@ -19,7 +19,7 @@ pipeline {
 
     post {
         success {
-            echo 'Tests passed Yahoooo'
+            echo 'Tests passed Yahoooo 12/10/2025'
         }
         failure {
             echo 'Tests failed ❌'
