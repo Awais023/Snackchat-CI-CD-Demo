@@ -23,37 +23,7 @@ pipeline {
                     -H "Content-type: application/json" ^
                     --data "{
                         \\"channel\\": \\"#all-test-automation\\",
-                        \\"text\\": \\"Jenkins Build Notification\\",
-                        \\"blocks\\": [
-                            {
-                                \\"type\\": \\"section\\",
-                                \\"text\\": {
-                                    \\"type\\": \\"mrkdwn\\",
-                                    \\"text\\": \\"*✅ Jenkins Build Completed!*\\nJob: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\"
-                                }
-                            },
-                            {
-                                \\"type\\": \\"actions\\",
-                                \\"elements\\": [
-                                    {
-                                        \\"type\\": \\"button\\",
-                                        \\"text\\": {
-                                            \\"type\\": \\"plain_text\\",
-                                            \\"text\\": \\"View Build\\"
-                                        },
-                                        \\"url\\": \\"${env.BUILD_URL}\\"
-                                    },
-                                    {
-                                        \\"type\\": \\"button\\",
-                                        \\"text\\": {
-                                            \\"type\\": \\"plain_text\\",
-                                            \\"text\\": \\"Open Job\\"
-                                        },
-                                        \\"url\\": \\"${env.JOB_URL}\\"
-                                    }
-                                ]
-                            }
-                        ]
+                        \\"text\\": \\"✅ Jenkins Build Completed: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\"
                     }"
                     """
                 }
@@ -70,29 +40,7 @@ pipeline {
                 -H "Content-type: application/json" ^
                 --data "{
                     \\"channel\\": \\"#all-test-automation\\",
-                    \\"text\\": \\"❌ Jenkins Build Failed\\",
-                    \\"blocks\\": [
-                        {
-                            \\"type\\": \\"section\\",
-                            \\"text\\": {
-                                \\"type\\": \\"mrkdwn\\",
-                                \\"text\\": \\"*❌ Build Failed!*\\nJob: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\"
-                            }
-                        },
-                        {
-                            \\"type\\": \\"actions\\",
-                            \\"elements\\": [
-                                {
-                                    \\"type\\": \\"button\\",
-                                    \\"text\\": {
-                                        \\"type\\": \\"plain_text\\",
-                                        \\"text\\": \\"View Build\\"
-                                    },
-                                    \\"url\\": \\"${env.BUILD_URL}\\"
-                                }
-                            ]
-                        }
-                    ]
+                    \\"text\\": \\"❌ Jenkins Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\"
                 }"
                 """
             }
