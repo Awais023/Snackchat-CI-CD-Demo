@@ -1,22 +1,16 @@
 pipeline {
     agent any
 
-    environment {
-        // You can define any env variables here if needed
-    }
-
     stages {
         stage('Build') {
             steps {
                 echo 'Starting Jenkins Build...'
-                // You can add actual build/test commands here
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running automated tests...'
-                // Placeholder for test commands
             }
         }
 
@@ -29,38 +23,33 @@ pipeline {
                     -H "Content-type: application/json" ^
                     --data "{
                         \\"channel\\": \\"#all-test-automation\\",
-                        \\"text\\": \\"✅ Jenkins Build Completed: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\",
+                        \\"text\\": \\"Jenkins Build Notification\\",
                         \\"blocks\\": [
                             {
-                                \\"type\\": \\"header\\",
-                                \\"text\\": {
-                                    \\"type\\": \\"plain_text\\",
-                                    \\"text\\": \\"Jenkins Build Notification\\"
-                                }
-                            },
-                            {
                                 \\"type\\": \\"section\\",
-                                \\"fields\\": [
-                                    { \\"type\\": \\"mrkdwn\\", \\"text\\": \\"*Job:* ${env.JOB_NAME}\\" },
-                                    { \\"type\\": \\"mrkdwn\\", \\"text\\": \\"*Build Number:* #${env.BUILD_NUMBER}\\" },
-                                    { \\"type\\": \\"mrkdwn\\", \\"text\\": \\"*Status:* ✅ Success\\" },
-                                    { \\"type\\": \\"mrkdwn\\", \\"text\\": \\"*Triggered by:* ${env.BUILD_USER}\\" }
-                                ]
+                                \\"text\\": {
+                                    \\"type\\": \\"mrkdwn\\",
+                                    \\"text\\": \\"*✅ Jenkins Build Completed!*\\nJob: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\"
+                                }
                             },
                             {
                                 \\"type\\": \\"actions\\",
                                 \\"elements\\": [
                                     {
                                         \\"type\\": \\"button\\",
-                                        \\"text\\": { \\"type\\": \\"plain_text\\", \\"text\\": \\"View Build\\" },
-                                        \\"url\\": \\"${env.BUILD_URL}\\",
-                                        \\"style\\": \\"primary\\"
+                                        \\"text\\": {
+                                            \\"type\\": \\"plain_text\\",
+                                            \\"text\\": \\"View Build\\"
+                                        },
+                                        \\"url\\": \\"${env.BUILD_URL}\\"
                                     },
                                     {
                                         \\"type\\": \\"button\\",
-                                        \\"text\\": { \\"type\\": \\"plain_text\\", \\"text\\": \\"Re-run Job\\" },
-                                        \\"url\\": \\"${env.BUILD_URL}rebuild\\",
-                                        \\"style\\": \\"danger\\"
+                                        \\"text\\": {
+                                            \\"type\\": \\"plain_text\\",
+                                            \\"text\\": \\"Open Job\\"
+                                        },
+                                        \\"url\\": \\"${env.JOB_URL}\\"
                                     }
                                 ]
                             }
@@ -81,20 +70,25 @@ pipeline {
                 -H "Content-type: application/json" ^
                 --data "{
                     \\"channel\\": \\"#all-test-automation\\",
-                    \\"text\\": \\"❌ Jenkins Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\",
+                    \\"text\\": \\"❌ Jenkins Build Failed\\",
                     \\"blocks\\": [
                         {
                             \\"type\\": \\"section\\",
-                            \\"text\\": { \\"type\\": \\"mrkdwn\\", \\"text\\": \\"*Jenkins Build Failed!*\\nJob: ${env.JOB_NAME} #${env.BUILD_NUMBER} failed. Please check immediately.\\" }
+                            \\"text\\": {
+                                \\"type\\": \\"mrkdwn\\",
+                                \\"text\\": \\"*❌ Build Failed!*\\nJob: ${env.JOB_NAME} #${env.BUILD_NUMBER}\\"
+                            }
                         },
                         {
                             \\"type\\": \\"actions\\",
                             \\"elements\\": [
                                 {
                                     \\"type\\": \\"button\\",
-                                    \\"text\\": { \\"type\\": \\"plain_text\\", \\"text\\": \\"View Build\\" },
-                                    \\"url\\": \\"${env.BUILD_URL}\\",
-                                    \\"style\\": \\"danger\\"
+                                    \\"text\\": {
+                                        \\"type\\": \\"plain_text\\",
+                                        \\"text\\": \\"View Build\\"
+                                    },
+                                    \\"url\\": \\"${env.BUILD_URL}\\"
                                 }
                             ]
                         }
