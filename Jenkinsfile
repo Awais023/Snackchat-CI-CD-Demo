@@ -1,18 +1,12 @@
 pipeline {
     agent any
-
     stages {
-        stage('Build') {
-            steps {
-                echo 'Running tests...'
-            }
-        }
-        stage('Slack Notification') {
+        stage('Slack Test') {
             steps {
                 slackSend(
                     channel: '#all-test-automation',
                     color: 'good',
-                    message: "✅ Jenkins build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    message: "✅ Test message from Jenkins Pipeline",
                     tokenCredentialId: 'SLACK_BOT_TOKEN2'
                 )
             }
