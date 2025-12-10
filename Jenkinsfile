@@ -14,17 +14,23 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN', variable: 'SLACK_TOKEN')]) {
                     script {
+                        // Read JSON file
                         def jsonText = readFile('test-results.json')
-                        def results = new groovy.json.JsonSlurper().parseText(jsonText)
-                        def executed = results.executed ?: 0
-                        def passed = results.passed ?: 0
-                        def failed = results.failed ?: 0
+                        def json = new groovy.json.JsonSlurper().parseText(jsonText)
+                        
+                        // Extract only primitives
+                        def executed = json.executed ?: 0
+                        def passed = json.passed ?: 0
+                        def failed = json.failed ?: 0
 
-                        // Send Slack message using PowerShell (Windows safe)
+                        // Build Slack message as string
+                        def slackMessage = "Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n*Test Results*: Executed: ${executed}, Passed: ${passed}, Failed: ${failed}"
+
+                        // Use PowerShell to post
                         powershell """
                         \$payload = @{
                             channel = '#all-test-automation'
-                            text = 'Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n*Test Results*: Executed: ${executed}, Passed: ${passed}, Failed: ${failed}'
+                            text = '${slackMessage}'
                         } | ConvertTo-Json
                         curl -X POST https://slack.com/api/chat.postMessage `
                             -H "Authorization: Bearer ${SLACK_TOKEN}" `
