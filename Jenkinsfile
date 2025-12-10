@@ -11,10 +11,16 @@ pipeline {
         stage('Slack Notification') {
             steps {
                 script {
-                    def results = readJSON file: 'test-results.json'
-                    env.PASSED = results.stats.passes.toString()
-                    env.FAILED = results.stats.failures.toString()
-                    env.EXECUTED = results.stats.tests.toString()
+                  def results = readJSON file: 'test-results.json'
+                  if (results != null) {
+                    env.PASSED = results.passed.toString()
+                    env.FAILED = results.failed.toString()
+                    env.EXECUTED = results.executed.toString()
+                    } else {
+                        env.PASSED = '0'
+                        env.FAILED = '0'
+                        env.EXECUTED = '0'
+                        }
                 }
                 withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN', variable: 'SLACK_TOKEN')]) {
                     bat """
