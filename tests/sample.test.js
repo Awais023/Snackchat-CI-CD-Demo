@@ -43,7 +43,7 @@ describe("Basic Jenkins Integration test", function () {
       await driver.findElement(By.css('button[type="submit"]')).click();
 
       await driver.wait(until.elementLocated(By.css(".flash.success")), 5000);
-      console.log("Login Test Passed !");
+      console.log("Login Test Passed  Again!");
       results.passed++;
     } catch (err) {
       console.log("Login Test Failed !");
