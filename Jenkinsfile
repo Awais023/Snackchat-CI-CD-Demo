@@ -29,16 +29,20 @@ pipeline {
                     env.EXECUTED = results.stats.tests.toString()
                     env.PASSED = results.stats.passes.toString()
                     env.FAILED = results.stats.failures.toString()
+
+                    // Prepare Slack message JSON file
+                    def slackMessage = """
+                    {
+                        "channel": "#all-test-automation",
+                        "text": "Jenkins Build: ${env.JOB_NAME} #${env.BUILD_NUMBER} | Executed: ${env.EXECUTED}, Passed: ${env.PASSED}, Failed: ${env.FAILED}"
+                    }
+                    """
+                    writeFile file: 'slack-message.json', text: slackMessage
                 }
 
                 withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN', variable: 'SLACK_TOKEN')]) {
-                    // Post message to Slack
-                    bat """
-                    curl -X POST https://slack.com/api/chat.postMessage ^
-                    -H "Authorization: Bearer %SLACK_TOKEN%" ^
-                    -H "Content-type: application/json; charset=utf-8" ^
-                    --data "{\\"channel\\":\\"#all-test-automation\\",\\"text\\":\\"Jenkins Build: ${env.JOB_NAME} #${env.BUILD_NUMBER} | Executed: ${env.EXECUTED}, Passed: ${env.PASSED}, Failed: ${env.FAILED}\\"}"
-                    """
+                    // Send Slack notification using the JSON file
+                    bat 'curl -X POST https://slack.com/api/chat.postMessage -H "Authorization: Bearer %SLACK_TOKEN%" -H "Content-type: application/json; charset=utf-8" --data @slack-message.json'
                 }
             }
         }
