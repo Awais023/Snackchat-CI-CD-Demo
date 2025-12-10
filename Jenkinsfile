@@ -17,16 +17,16 @@ pipeline {
                         // Read JSON file
                         def jsonText = readFile('test-results.json')
                         def json = new groovy.json.JsonSlurper().parseText(jsonText)
-                        
+
                         // Extract only primitives
                         def executed = json.executed ?: 0
                         def passed = json.passed ?: 0
                         def failed = json.failed ?: 0
 
-                        // Build Slack message as string
+                        // Construct message
                         def slackMessage = "Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n*Test Results*: Executed: ${executed}, Passed: ${passed}, Failed: ${failed}"
 
-                        // Use PowerShell to post
+                        // Send via PowerShell
                         powershell """
                         \$payload = @{
                             channel = '#all-test-automation'
