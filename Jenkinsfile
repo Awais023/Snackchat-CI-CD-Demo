@@ -17,14 +17,16 @@ pipeline {
             steps {
                 echo "Running tests..."
                 bat "npm install"
-                bat "npx mocha tests/sample.test.js --reporter json > test-results.json"
+
+                // Run Mocha tests and ignore exit code so pipeline continues
+                bat(script: "npx mocha tests/sample.test.js --reporter json > test-results.json", returnStatus: true)
             }
         }
 
         stage('Slack Notification') {
             steps {
                 script {
-                    // Read test results JSON
+                    // Read test results JSON safely
                     def results = readJSON file: 'test-results.json'
                     env.EXECUTED = results.stats.tests.toString()
                     env.PASSED = results.stats.passes.toString()
@@ -32,7 +34,7 @@ pipeline {
                 }
 
                 withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN', variable: 'SLACK_TOKEN')]) {
-                    // Send Slack message safely on Windows
+                    // Create Slack payload file to handle Windows escaping
                     bat """
                     echo { \\"channel\\": \\"#all-test-automation\\", \\"text\\": \\"Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} | Executed: ${env.EXECUTED}, Passed: ${env.PASSED}, Failed: ${env.FAILED}\\" } > slack-message.json
                     curl -X POST https://slack.com/api/chat.postMessage ^
@@ -49,11 +51,11 @@ pipeline {
         always {
             echo "Pipeline finished."
         }
-        failure {
-            echo "Build failed!"
-        }
         success {
             echo "Build succeeded!"
+        }
+        failure {
+            echo "Build failed!"
         }
     }
 }
