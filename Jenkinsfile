@@ -1,7 +1,19 @@
 pipeline {
     agent any
 
+    environment {
+        NODEJS_HOME = "C:\\Program Files\\nodejs" // Adjust if needed
+        PATH = "${env.NODEJS_HOME};${env.PATH}"
+    }
+
     stages {
+
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build & Run Tests') {
             steps {
                 echo 'Running Selenium JS tests...'
@@ -14,32 +26,41 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN', variable: 'SLACK_TOKEN')]) {
                     script {
-                        // Read JSON file
+                        // Read JSON file as text
                         def jsonText = readFile('test-results.json')
+
+                        // Parse JSON
                         def json = new groovy.json.JsonSlurper().parseText(jsonText)
 
-                        // Extract only primitives
+                        // Extract only primitive values
                         def executed = json.executed ?: 0
                         def passed = json.passed ?: 0
                         def failed = json.failed ?: 0
 
-                        // Construct message
-                        def slackMessage = "Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\n*Test Results*: Executed: ${executed}, Passed: ${passed}, Failed: ${failed}"
+                        // Build a plain string message
+                        def message = "Build #${env.BUILD_NUMBER} - Tests: Executed=${executed}, Passed=${passed}, Failed=${failed}"
 
-                        // Send via PowerShell
+                        // Send Slack notification via PowerShell
                         powershell """
-                        \$payload = @{
-                            channel = '#all-test-automation'
-                            text = '${slackMessage}'
-                        } | ConvertTo-Json
-                        curl -X POST https://slack.com/api/chat.postMessage `
-                            -H "Authorization: Bearer ${SLACK_TOKEN}" `
-                            -H "Content-Type: application/json" `
-                            --data \$payload
+                            \$payload = @{
+                                channel = '#all-test-automation'
+                                text = '${message}'
+                            } | ConvertTo-Json
+                            
+                            curl -X POST https://slack.com/api/chat.postMessage `
+                                -H "Authorization: Bearer ${SLACK_TOKEN}" `
+                                -H "Content-Type: application/json" `
+                                --data \$payload
                         """
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline finished."
         }
     }
 }
