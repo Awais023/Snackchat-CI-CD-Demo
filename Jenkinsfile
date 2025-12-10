@@ -22,12 +22,13 @@ pipeline {
                         env.EXECUTED = '0'
                         }
                 }
+               // Send Slack message
                 withCredentials([string(credentialsId: 'SLACK_BOT_TOKEN', variable: 'SLACK_TOKEN')]) {
                     bat """
                     curl -X POST https://slack.com/api/chat.postMessage ^
                     -H "Authorization: Bearer %SLACK_TOKEN%" ^
                     -H "Content-type: application/json" ^
-                    --data "{ \\"channel\\": \\"#all-test-automation\\", \\"text\\": \\" Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} | Executed: ${env.EXECUTED}, Passed: ${env.PASSED}, Failed: ${env.FAILED}\\" }"
+                    --data "{\\"channel\\":\\"#all-test-automation\\",\\"text\\":\\"Jenkins Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} | Executed: ${env.EXECUTED}, Passed: ${env.PASSED}, Failed: ${env.FAILED}\\"}"
                     """
                 }
             }
